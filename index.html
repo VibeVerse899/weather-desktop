@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="card">
+    <div class="search">
+        <input type="text" placeholder="शहर का नाम लिखें" spellcheck="false">
+        <button><img src="images/search.png"></button>
+    </div>
+    <div class="weather">
+        <img src="images/rain.png" class="weather-icon">
+        <h1 class="temp">22°c</h1>
+        <h2 class="city">india</h2>
+        <div class="details">
+            <div class="col">
+                <img src="images/humidity.png">
+                <div>
+                    <p class="humidity">50%</p>
+                    <p>Humidity</p>
+                </div>
+            </div>
+            <div class="col">
+                <img src="images/wind.png">
+                <div>
+                    <p class="wind">15 km/h</p>
+                    <p>Wind Speed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+const apiKey = "21189f626536927d49995389e6e7f817";
+const apiUrl = "https://openweathermap.org";
+
+const searchBox = document.querySelector(".search input");
+const searchBtn = document.querySelector(".search button");
+const weatherIcon = document.querySelector(".weather-icon");
+
+async function checkWeather(city){
+    if(city.trim() === "") return;
+    
+    try {
+        const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+        
+        if(response.status == 401){
+            alert("आपकी API Key अभी चालू (Activate) नहीं हुई है। कृपया 15-30 मिनट बाद फिर कोशिश करें।");
+            return;
+        }
+        if(response.status == 404){
+            alert("शहर का नाम गलत है, कृपया सही नाम लिखें!");
+            return;
+        }
+
+        var data = await response.json();
+
+        document.querySelector(".city").innerHTML = data.name;
+        document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°c";
+        document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+        document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
+
+        const weatherType = data.weather[0].main;
+
+        if(weatherType == "Clouds"){
+            weatherIcon.src = "images/clouds.png";
+        }
+        else if(weatherType == "Clear"){
+            weatherIcon.src = "images/clear.png";
+        }
+        else if(weatherType == "Rain"){
+            weatherIcon.src = "images/rain.png";
+        }
+        else if(weatherType == "Drizzle"){
+            weatherIcon.src = "images/drizzle.png";
+        }
+        else if(weatherType == "Mist" || weatherType == "Haze" || weatherType == "Smoke"){
+            weatherIcon.src = "images/mist.png";
+        }
+    } catch (error) {
+        alert("असली कारण: " + error.message);
+    }
+}
+
+searchBtn.addEventListener("click", ()=>{
+    checkWeather(searchBox.value);
+});
+
+searchBox.addEventListener("keypress", (event)=>{
+    if(event.key === "Enter"){
+        checkWeather(searchBox.value);
+    }
+});
+</script>
+
+</body>
+</html>
